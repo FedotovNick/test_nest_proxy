@@ -1,24 +1,11 @@
-// import { Module } from '@nestjs/common';
-// import { AppController } from './app.controller';
-// import { AppService } from './app.service';
-
-// @Module({
-//   imports: [],
-//   controllers: [AppController],
-//   providers: [AppService],
-// })
-// export class AppModule {}
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import {
   createProxyMiddleware,
   responseInterceptor,
 } from 'http-proxy-middleware';
-
-import * as http from 'http';
 import * as cheerio from 'cheerio';
 
-// const targetUrl = 'https://www.youtube.com/';
-const targetUrl = 'https://purple-lens.com';
+const targetUrl = 'https://docs.nestjs.com/';
 const sourceUrl = 'http://localhost:3000';
 
 @Module({
@@ -46,10 +33,8 @@ export class AppModule implements NestModule {
               }
 
               const body: string = responseBuffer.toString('utf8'); // convert buffer to string
-
               const $ = cheerio.load(body);
 
-              // Заміна домену в посиланнях
               $('a[href]').each((i, elem) => {
                 const href = $(elem).attr('href');
                 if (href && href.startsWith(targetUrl)) {
