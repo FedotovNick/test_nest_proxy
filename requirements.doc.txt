@@ -1,0 +1,18 @@
+Test Task for TypeScript/NestJS Developer Candidate
+
+TypeScript application 
+•	Write a "proxy" that will return the modified text of docs.nestjs.com (or any other site of your choice);
+•	To each word, which consists of six letters, you must add a symbol "™";
+•	For the task you must use NestJS framework;
+•	The functionality of the original site must not be altered;
+•	All internal navigation links of the site must be replaced by the address of the proxy-server.
+
+That is, site navigation must be handled by a Proxy without taking the client back to the original site.
+
+Example. A request to, say, {proxy address}/websockets/gateways should show the content of the page
+https://docs.nestjs.com/websockets/gateways with changed words that were 6 characters long. 
+And all the site navigation to sections of the site should go through Proxy.
+
+Publishing the test task
+The project must be published in a private repository on github.com or bitbucket.org.
+The project must include a read-me file that describes how to run the application.

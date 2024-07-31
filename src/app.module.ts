@@ -1,50 +1,43 @@
+import { join } from 'path';
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import {
-  createProxyMiddleware,
-  responseInterceptor,
-} from 'http-proxy-middleware';
-import * as cheerio from 'cheerio';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import { proxyEventHandlers } from './proxyEventHandlers';
 
 const targetUrl = 'https://docs.nestjs.com/';
-const sourceUrl = 'http://localhost:3000';
+// const sourceUrl = 'http://localhost:3000';
+const publicDirName = 'public';
+const proxyPathName = 'proxy';
 
 @Module({
-  imports: [],
-  controllers: [],
-  providers: [],
+  imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', publicDirName),
+      serveRoot: '/', // Базовый URL для статических файлов
+    }),
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
         createProxyMiddleware({
+          target: targetUrl,
           changeOrigin: true,
-          // target: targetUrl,
+          pathFilter: (_, req) => {
+            //@ts-ignore
+            const path = req.baseUrl;
+            return !path.startsWith(`/${proxyPathName}`);
+          },
           router: (req) => {
             //@ts-ignore
-            return `${targetUrl}${req.baseUrl}`;
+            const path = req.baseUrl;
+
+            return `${targetUrl}${path}`;
           },
 
           selfHandleResponse: true,
-          on: {
-            proxyRes: responseInterceptor(async (responseBuffer, proxyRes) => {
-              if (!proxyRes.headers['content-type']?.includes('text/html')) {
-                return responseBuffer;
-              }
-
-              const body: string = responseBuffer.toString('utf8'); // convert buffer to string
-              const $ = cheerio.load(body);
-
-              $('a[href]').each((i, elem) => {
-                const href = $(elem).attr('href');
-                if (href && href.startsWith(targetUrl)) {
-                  $(elem).attr('href', href.replace(targetUrl, sourceUrl));
-                }
-              });
-
-              return $.html();
-            }),
-          },
+          on: proxyEventHandlers,
         }),
       )
       .forRoutes('*');
