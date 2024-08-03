@@ -59,10 +59,6 @@ export const proxyEventHandlers = {
       }
 
       let body: string = responseBuffer.toString('utf8');
-      console.log({
-        method,
-        ctype,
-      });
 
       if (ctype === contentHTML) {
         const $ = cheerio.load(body);
