@@ -11,9 +11,6 @@ const changeWordLength = 6;
 const additionalPart = '™';
 
 const isFirstLetterUpperCase = (word: string): boolean => {
-  if (!word || typeof word !== 'string') {
-    return false;
-  }
   const firstLetter = word.charAt(0);
   return firstLetter === firstLetter.toUpperCase();
 };
