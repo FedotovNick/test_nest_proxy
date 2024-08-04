@@ -19,7 +19,7 @@ This project is an HTTP proxy server built using NestJS and `http-proxy-middlewa
 
    ```bash
    git clone git@github.com:FedotovNick/test_nest_proxy.git
-   cd my-proxy-server
+   cd test_nest_proxy
 
    ```
 
