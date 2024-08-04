@@ -9,7 +9,7 @@ This project is an HTTP proxy server built using NestJS and `http-proxy-middlewa
 
 ## Requirements
 
-- Node.js (v18 or higher)
+- Node.js (v20 or higher)
 - Docker
 - Docker Compose
 
