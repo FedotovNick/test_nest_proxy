@@ -1,6 +1,7 @@
-import { responseInterceptor } from 'http-proxy-middleware';
 import * as cheerio from 'cheerio';
+import { Request } from 'express';
 import { IncomingMessage } from 'http';
+import { responseInterceptor } from 'http-proxy-middleware';
 
 const { TARGET_URL, SOURCE_URL } = process.env;
 
@@ -42,12 +43,7 @@ const changeCode = (code: string): string => {
 
 export const proxyEventHandlers = {
   proxyRes: responseInterceptor(
-    async (
-      responseBuffer: Buffer,
-      proxyRes: IncomingMessage,
-      req: IncomingMessage,
-    ) => {
-      const method = req.method;
+    async (responseBuffer: Buffer, proxyRes: IncomingMessage, req: Request) => {
       let ctype = proxyRes.headers['content-type'];
       ctype = ctype?.split(';')?.[0]?.trim();
 
@@ -65,6 +61,23 @@ export const proxyEventHandlers = {
           if (href && href.startsWith(SOURCE_URL!)) {
             $(elem).attr('href', href.replace(SOURCE_URL!, TARGET_URL!));
           }
+        });
+
+        $('body *').each(function () {
+          $(this)
+            .contents()
+            .filter(function () {
+              return this.nodeType === 3;
+            })
+            .each(function () {
+              //@ts-ignore
+              const newText = this.nodeValue.replace(
+                /\b(\w{6})\b/g,
+                `$1${additionalPart}`,
+              );
+              //@ts-ignore
+              this.nodeValue = newText;
+            });
         });
 
         body = $.html();
