@@ -27,7 +27,7 @@ This project is an HTTP proxy server built using NestJS and `http-proxy-middlewa
 
    ```bash
    npm install
-   npm build
+   npm run build
 
    ```
 
