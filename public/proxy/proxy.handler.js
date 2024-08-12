@@ -136,7 +136,7 @@ function initDynamicHandlerFunctionality() {
   const sourceUrl = script.getAttribute('data-proxy-source-url');
   const targetUrl = script.getAttribute('data-proxy-target-url');
 
-  registerCustomXMLHttpRequest();
+  registerCustomXMLHttpRequest(sourceUrl, targetUrl);
 
   window.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver(() => {
