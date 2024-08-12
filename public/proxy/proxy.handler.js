@@ -56,7 +56,7 @@ function addToSixLetterWords() {
 
 function replaceDomain(obj, sourceUrl, targetUrl) {
   if (Array.isArray(obj)) {
-    return obj.map((item) => replaceDomain(item));
+    return obj.map((item) => replaceDomain(item, sourceUrl, targetUrl));
   }
 
   if (typeof obj === 'object' && obj !== null) {
