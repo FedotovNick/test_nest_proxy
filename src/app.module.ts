@@ -1,6 +1,10 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { Request } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'path';
 import { proxyEventHandlers } from './proxyEventHandlers';
@@ -21,22 +25,15 @@ export class AppModule implements NestModule {
     consumer
       .apply(
         createProxyMiddleware({
+          target: SOURCE_URL,
           changeOrigin: true,
-          pathFilter: (_, req) => {
-            //@ts-ignore
-            const path = req.baseUrl;
-            return !path.startsWith(`/${proxyPathName}`);
+          pathFilter: (pathname) => {
+            return !pathname.startsWith(`/${proxyPathName}`);
           },
-          router: (req: Request) => {
-            const path = req.baseUrl;
-
-            return `${SOURCE_URL}${path}`;
-          },
-
           selfHandleResponse: true,
           on: proxyEventHandlers,
         }),
       )
-      .forRoutes('*');
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

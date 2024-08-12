@@ -6,30 +6,29 @@ const { TARGET_URL, SOURCE_URL } = process.env;
 
 const contentHTML = 'text/html';
 const contentJS = 'application/javascript';
-const contentTypes = [contentHTML, contentJS];
-const additionalPart = '™';
+const contentJSON = 'application/json';
 
 export const proxyEventHandlers = {
   proxyRes: responseInterceptor(
     async (responseBuffer: Buffer, proxyRes: IncomingMessage) => {
       let ctype = proxyRes.headers['content-type'];
       ctype = ctype?.split(';')?.[0]?.trim();
+
+      if (![contentJS, contentJSON, contentHTML].includes(ctype)) {
+        return responseBuffer;
+      }
+
       let body: string = responseBuffer.toString('utf8');
 
-      if (ctype === contentJS || ctype === 'application/json') {
+      if ([contentJS, contentJSON].includes(ctype)) {
         body = body.replaceAll(SOURCE_URL!, TARGET_URL!);
+
         const oldHost = new URL(SOURCE_URL).host;
         const newHost = new URL(TARGET_URL).host;
-
-        console.log({ oldHost, newHost });
 
         body = body.replaceAll(`"${oldHost}`, `"${newHost}`);
 
         return body;
-      }
-
-      if (ctype !== contentHTML) {
-        return responseBuffer;
       }
 
       const $ = cheerio.load(body);
@@ -41,23 +40,9 @@ export const proxyEventHandlers = {
         }
       });
 
-      $('body *').each(function () {
-        $(this)
-          .contents()
-          .filter(function () {
-            return this.nodeType === 3;
-          })
-          .each(function () {
-            //@ts-ignore
-            const newText = this.nodeValue.replace(
-              /\b(\w{6})\b/g,
-              `$1${additionalPart}`,
-            );
-            //@ts-ignore
-            this.nodeValue = newText;
-          });
-      });
-      $('head').append('<script src="/proxy/proxy.handler.js" defer></script>');
+      $('head').append(
+        `<script id="proxy_handler_script" data-proxy-source-url="${SOURCE_URL}" data-proxy-target-url="${TARGET_URL}" src="/proxy/proxy.handler.js" defer></script>`,
+      );
 
       body = $.html();
 
